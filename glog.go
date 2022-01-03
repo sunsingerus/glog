@@ -533,15 +533,21 @@ where the fields are defined as follows:
 	msg              The user-supplied message
 */
 func (l *loggingT) header(s severity, depth int) (*buffer, string, int) {
-	_, file, line, ok := runtime.Caller(3 + depth)
-	if !ok {
-		file = "???"
-		line = 1
-	} else {
-		slash := strings.LastIndex(file, "/")
-		if slash >= 0 {
-			file = file[slash+1:]
+	file := ""
+	line := 0
+	ok := false
+	for loop := true; loop; loop = file == "announcer.go" {
+		_, file, line, ok = runtime.Caller(3 + depth)
+		if !ok {
+			file = "???"
+			line = 1
+		} else {
+			slash := strings.LastIndex(file, "/")
+			if slash >= 0 {
+				file = file[slash+1:]
+			}
 		}
+		depth++
 	}
 	return l.formatHeader(s, file, line), file, line
 }
